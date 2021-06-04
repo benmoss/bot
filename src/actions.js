@@ -1,16 +1,16 @@
 const core = require('@actions/core');
-const { GitHub, context } = require('@actions/github');
+const {GitHub, context} = require('@actions/github');
 
 async function run() {
 
     try {
         const github = new GitHub(process.env.GITHUB_TOKEN);
-        const reRunCmd = core.getInput('rerun_cmd', { required: false});
+        const reRunCmd = core.getInput('rerun_cmd', {required: false});
         const owner = core.getInput('repo_owner', {required: true});
         const repo = core.getInput('repo_name', {required: true});
         const comment = core.getInput('comment', {required: true});
 
-        if ( comment !== reRunCmd) {
+        if (comment !== reRunCmd) {
             console.log("this is not a bot command");
             return;
         }
@@ -36,7 +36,7 @@ async function run() {
 
         jobs.data.check_runs.forEach(job => {
             if (job.conclusion === 'failure' || job.conclusion === 'cancelled') {
-                console.log("rerun job " + job.name);
+                console.log("rerun job " + job.name + " suite: " + job.check_suite.id);
                 github.checks.rerequestSuite({
                     owner,
                     repo,
@@ -44,7 +44,7 @@ async function run() {
                 })
             }
         });
-    }catch (e) {
+    } catch (e) {
         core.setFailed(e);
     }
 }
